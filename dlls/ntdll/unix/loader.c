@@ -492,7 +492,13 @@ static void preloader_exec( char **argv, WORD machine )
         && ((p = remove_tail( argv[1], "x86_64-unix/wine" )) || (p = remove_tail( argv[1], "i386-unix/wine64" ))))
     {
         asprintf( &argv[0], "%si386-unix/wine64-preloader", p );
-        asprintf( &argv[1], "%si386-unix/wine64", p );
+        /* only Proton's layout has i386-unix/wine64, a WoW64 install uses the regular loader */
+        if (!access( argv[0], X_OK )) asprintf( &argv[1], "%si386-unix/wine64", p );
+        else
+        {
+            free( argv[0] );
+            asprintf( &argv[0], "%s-preloader", argv[1] );
+        }
     }
     else
 #endif
